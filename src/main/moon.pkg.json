@@ -1,0 +1,6 @@
+{
+  "is-main": true,
+  "import": [
+    "pocket7878/rtow-moonbit/lib"
+  ]
+}

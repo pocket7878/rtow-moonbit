@@ -17,34 +17,24 @@ fn main {
   let aspect_ratio : Double = 16.0 / 9.0
   let image_width : Int = 384
   let image_height : Int = (image_width.to_double() / aspect_ratio).to_int()
+  let samples_per_pixel : Int = 100
   println("P3\n\{image_width} \{image_height}\n255")
-  let viewport_height = 2.0
-  let viewport_width = aspect_ratio * viewport_height
-  let focal_length = 1.0
-  let origin = @lib.Point3::new(0.0, 0.0, 0.0)
-  let horizontal = @lib.Vec3::new(viewport_width, 0.0, 0.0)
-  let vertical = @lib.Vec3::new(0.0, viewport_height, 0.0)
-  let lower_left_corner = origin -
-    horizontal.div_scalar(2.0) -
-    vertical.div_scalar(2.0) -
-    @lib.Vec3::new(0.0, 0.0, focal_length)
-
-    let world = @lib.HittableList::new()
-    world.add(@lib.Sphere::new(@lib.Point3::new(0,0,-1), 0.5))
-    world.add(@lib.Sphere::new(@lib.Point3::new(0,-100.5,-1), 100))
+  let world = @lib.HittableList::new()
+  world.add(@lib.Sphere::new(@lib.Point3::new(0, 0, -1), 0.5))
+  world.add(@lib.Sphere::new(@lib.Point3::new(0, -100.5, -1), 100))
+  let cam = @lib.Camera::new()
   for j = image_height - 1; j >= 0; j = j - 1 {
     for i = 0; i < image_width; i = i + 1 {
-      let u = i.to_double() / (image_width - 1).to_double()
-      let v = j.to_double() / (image_height - 1).to_double()
-      let ray = @lib.Ray::new(
-        origin,
-        lower_left_corner +
-        horizontal.mul_scalar(u) +
-        vertical.mul_scalar(v) -
-        origin,
-      )
-      let c = ray_color(ray, world)
-      @lib.write_color(c)
+      let mut pixel_color : @lib.Color = @lib.Color::new(0, 0, 0)
+      for s = 0; s < samples_per_pixel; s = s + 1 {
+        let u = (i.to_double() + @lib.random_double()) /
+          (image_width - 1).to_double()
+        let v = (j.to_double() + @lib.random_double()) /
+          (image_height - 1).to_double()
+        let r = cam.get_ray(u, v)
+        pixel_color += ray_color(r, world)
+      }
+      @lib.write_color(pixel_color, samples_per_pixel)
     }
   }
 }

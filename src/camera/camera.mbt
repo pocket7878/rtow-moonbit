@@ -7,18 +7,27 @@ struct Camera {
 }
 
 ///|
-pub fn Camera::new() -> Camera {
-  let aspect_ratio = 16.0 / 9.0
-  let viewport_height = 2.0
+pub fn Camera::new(
+  lookfrom : @vec3.Point3,
+  lookat : @vec3.Point3,
+  vup : @vec3.Vec3,
+  vfov : Double,
+  aspect_ratio : Double,
+) -> Camera {
+  let theta = @utils.degrees_to_radians(vfov)
+  let h = @math.tan(theta / 2.0)
+  let viewport_height = 2.0 * h
   let viewport_width = aspect_ratio * viewport_height
-  let focal_length = 1.0
-  let origin = @vec3.Point3::new(0, 0, 0)
-  let horizontal = @vec3.Vec3::new(viewport_width, 0.0, 0.0)
-  let vertical = @vec3.Vec3::new(0.0, viewport_height, 0.0)
+  let w = @vec3.unit_vector(lookfrom - lookat)
+  let u = @vec3.unit_vector(vup.cross(w))
+  let v = w.cross(u)
+  let origin = lookfrom
+  let horizontal = u.mul_scalar(viewport_width)
+  let vertical = v.mul_scalar(viewport_height)
   let lower_left_corner = origin -
     horizontal.div_scalar(2) -
     vertical.div_scalar(2) -
-    @vec3.Vec3::new(0, 0, focal_length)
+    w
   return { origin, lower_left_corner, horizontal, vertical }
 }
 

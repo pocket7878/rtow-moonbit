@@ -70,7 +70,13 @@ fn main {
       @material.Dielectric::new(1.5),
     ),
   )
-  let cam = @camera.Camera::new()
+  let cam = @camera.Camera::new(
+    @vec3.Point3::new(-2, 2, 1),
+    @vec3.Point3::new(0, 0, -1),
+    @vec3.Vec3::new(0, 1, 0),
+    90,
+    aspect_ratio,
+  )
   for j = image_height - 1; j >= 0; j = j - 1 {
     for i = 0; i < image_width; i = i + 1 {
       let mut pixel_color : @color.Color = @color.Color::new(0, 0, 0)

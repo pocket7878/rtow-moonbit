@@ -39,7 +39,16 @@ pub fn Vec3::new(e0 : Double, e1 : Double, e2 : Double) -> Vec3 {
 }
 
 ///|
-pub fn Vec3::random(min : Double, max : Double) -> Vec3 {
+pub fn Vec3::random() -> Vec3 {
+  return Vec3::new(
+    @utils.random_double(),
+    @utils.random_double(),
+    @utils.random_double(),
+  )
+}
+
+///|
+pub fn Vec3::random_in_range(min : Double, max : Double) -> Vec3 {
   return Vec3::new(
     @utils.random_double_in_range(min, max),
     @utils.random_double_in_range(min, max),
@@ -128,9 +137,27 @@ pub fn random_unit_vector() -> Vec3 {
 
 ///|
 pub fn random_vec3_in_unit_sphare() -> Vec3 {
-  let mut p = Vec3::random(-1, 1)
+  let mut p = Vec3::random_in_range(-1, 1)
   while p.length_squared() >= 1 {
-    p = Vec3::random(-1, 1)
+    p = Vec3::random_in_range(-1, 1)
+  } else {
+    return p
+  }
+}
+
+///|
+pub fn random_in_unit_disk() -> Vec3 {
+  let mut p = Vec3::new(
+    @utils.random_double_in_range(-1, 1),
+    @utils.random_double_in_range(-1, 1),
+    0,
+  )
+  while p.length_squared() >= 1 {
+    p = Vec3::new(
+      @utils.random_double_in_range(-1, 1),
+      @utils.random_double_in_range(-1, 1),
+      0,
+    )
   } else {
     return p
   }

@@ -24,58 +24,82 @@ fn ray_color(
 }
 
 ///|
+fn random_scene() -> @hittable.HittableList {
+  let world = @hittable.HittableList::new()
+  let ground_material = @material.Lambertian::new(
+    @color.Color::new(0.5, 0.5, 0.5),
+  )
+  world.add(
+    @sphere.Sphere::new(@vec3.Point3::new(0, -1000, 0), 1000, ground_material),
+  )
+  for a = -11; a < 11; a = a + 1 {
+    for b = -11; b < 11; b = b + 1 {
+      let choose_mat = @utils.random_double()
+      let center = @vec3.Point3::new(
+        a.to_double() + 0.9 * @utils.random_double(),
+        0.2,
+        b.to_double() + 0.9 * @utils.random_double(),
+      )
+      if (center - @vec3.Vec3::new(4, 0.2, 0)).length() > 0.9 {
+        if choose_mat < 0.8 {
+          // diffuse
+          let albedo = @color.Color::random() * @color.Color::random()
+          let material = @material.Lambertian::new(albedo)
+          world.add(@sphere.Sphere::new(center, 0.2, material))
+        } else if choose_mat < 0.95 {
+          // metal
+          let albedo = @color.Color::random_in_range(0.5, 1)
+          let fuzz = @utils.random_double_in_range(0, 0.5)
+          let material = @material.Metal::new(albedo, fuzz)
+          world.add(@sphere.Sphere::new(center, 0.2, material))
+        } else {
+          // glass
+          let material = @material.Dielectric::new(1.5)
+          world.add(@sphere.Sphere::new(center, 0.2, material))
+        }
+      }
+    }
+  }
+  world.add(
+    @sphere.Sphere::new(
+      @vec3.Point3::new(0, 1, 0),
+      1.0,
+      @material.Dielectric::new(1.5),
+    ),
+  )
+  world.add(
+    @sphere.Sphere::new(
+      @vec3.Point3::new(-4, 1, 0),
+      1.0,
+      @material.Lambertian::new(@color.Color::new(0.4, 0.2, 0.1)),
+    ),
+  )
+  world.add(
+    @sphere.Sphere::new(
+      @vec3.Point3::new(4, 1, 0),
+      1.0,
+      @material.Metal::new(@color.Color::new(0.7, 0.6, 0.5), 0.0),
+    ),
+  )
+  world
+}
+
+///|
 fn main {
   let aspect_ratio : Double = 16.0 / 9.0
-  let image_width : Int = 384
+  let image_width : Int = 1200
   let image_height : Int = (image_width.to_double() / aspect_ratio).to_int()
   let samples_per_pixel : Int = 100
   let max_depth = 50
   println("P3\n\{image_width} \{image_height}\n255")
-  let world = @hittable.HittableList::new()
-  // Ground
-  world.add(
-    @sphere.Sphere::new(
-      @vec3.Point3::new(0, -100.5, -1),
-      100,
-      @material.Lambertian::new(@color.Color::new(0.8, 0.8, 0.0)),
-    ),
-  )
-  // Center ball
-  world.add(
-    @sphere.Sphere::new(
-      @vec3.Point3::new(0, 0, -1),
-      0.5,
-      @material.Lambertian::new(@color.Color::new(0.1, 0.2, 0.5)),
-    ),
-  )
-  // Right ball
-  world.add(
-    @sphere.Sphere::new(
-      @vec3.Point3::new(1, 0, -1),
-      0.5,
-      @material.Metal::new(@color.Color::new(0.8, 0.6, 0.2), 0.3),
-    ),
-  )
-  world.add(
-    @sphere.Sphere::new(
-      @vec3.Point3::new(-1, 0, -1),
-      0.5,
-      @material.Dielectric::new(1.5),
-    ),
-  )
-  world.add(
-    @sphere.Sphere::new(
-      @vec3.Point3::new(-1, 0, -1),
-      -0.45,
-      @material.Dielectric::new(1.5),
-    ),
-  )
+  let world = random_scene()
+  let lookfrom = @vec3.Point3::new(13, 2, 3)
+  let lookat = @vec3.Point3::new(0, 0, 0)
+  let vup = @vec3.Vec3::new(0, 1, 0)
+  let dist_to_focus = 10.0
+  let aperture = 0.1
   let cam = @camera.Camera::new(
-    @vec3.Point3::new(-2, 2, 1),
-    @vec3.Point3::new(0, 0, -1),
-    @vec3.Vec3::new(0, 1, 0),
-    90,
-    aspect_ratio,
+    lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus,
   )
   for j = image_height - 1; j >= 0; j = j - 1 {
     for i = 0; i < image_width; i = i + 1 {

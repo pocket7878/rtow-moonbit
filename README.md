@@ -26,6 +26,10 @@ make run
 make view
 ```
 
+## 出力例
+
+![レンダリング結果](image.ppm.jpg)
+
 ## ライセンス
 
 Apache License 2.0

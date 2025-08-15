@@ -9,7 +9,7 @@ fn ray_color(
   }
   match world.hit(r, 0.001, @double.infinity) {
     Some(rec) =>
-      match rec.mat.scatter(r, rec.normal, rec.p) {
+      match rec.mat.scatter(r, rec.normal, rec.p, rec.front_face) {
         Some((attenuation, scattered)) =>
           return attenuation * ray_color(scattered, world, depth - 1)
         None => return @color.Color::new(0, 0, 0)
@@ -32,13 +32,7 @@ fn main {
   let max_depth = 50
   println("P3\n\{image_width} \{image_height}\n255")
   let world = @hittable.HittableList::new()
-  world.add(
-    @sphere.Sphere::new(
-      @vec3.Point3::new(0, 0, -1),
-      0.5,
-      @material.Lambertian::new(@color.Color::new(0.7, 0.3, 0.3)),
-    ),
-  )
+  // Ground
   world.add(
     @sphere.Sphere::new(
       @vec3.Point3::new(0, -100.5, -1),
@@ -46,18 +40,34 @@ fn main {
       @material.Lambertian::new(@color.Color::new(0.8, 0.8, 0.0)),
     ),
   )
+  // Center ball
+  world.add(
+    @sphere.Sphere::new(
+      @vec3.Point3::new(0, 0, -1),
+      0.5,
+      @material.Lambertian::new(@color.Color::new(0.1, 0.2, 0.5)),
+    ),
+  )
+  // Right ball
   world.add(
     @sphere.Sphere::new(
       @vec3.Point3::new(1, 0, -1),
       0.5,
-      @material.Metal::new(@color.Color::new(0.8, 0.6, 0.2), 1.0),
+      @material.Metal::new(@color.Color::new(0.8, 0.6, 0.2), 0.3),
     ),
   )
   world.add(
     @sphere.Sphere::new(
       @vec3.Point3::new(-1, 0, -1),
       0.5,
-      @material.Metal::new(@color.Color::new(0.8, 0.8, 0.8), 0.3),
+      @material.Dielectric::new(1.5),
+    ),
+  )
+  world.add(
+    @sphere.Sphere::new(
+      @vec3.Point3::new(-1, 0, -1),
+      -0.45,
+      @material.Dielectric::new(1.5),
     ),
   )
   let cam = @camera.Camera::new()

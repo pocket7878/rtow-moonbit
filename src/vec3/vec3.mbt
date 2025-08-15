@@ -142,6 +142,14 @@ pub fn reflect(v : Vec3, n : Vec3) -> Vec3 {
 }
 
 ///|
+pub fn refract(uv : Vec3, n : Vec3, etai_over_etat : Double) -> Vec3 {
+  let cos_theta = dot(-uv, n)
+  let r_out_parallel = (uv + n.mul_scalar(cos_theta)).mul_scalar(etai_over_etat)
+  let r_out_prep = n.mul_scalar(-(1.0 - r_out_parallel.length_squared()).sqrt())
+  return r_out_parallel + r_out_prep
+}
+
+///|
 pub typealias Vec3 as Point3
 
 ///|

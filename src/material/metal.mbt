@@ -15,6 +15,7 @@ pub impl Material for Metal with scatter(
   r_in : @ray.Ray,
   normal : @vec3.Vec3,
   hit_point : @vec3.Point3,
+  front_face : Bool,
 ) -> (@color.Color, @ray.Ray)? {
   let reflected = @vec3.reflect(@vec3.unit_vector(r_in.direction()), normal)
   let scattered = @ray.Ray::new(

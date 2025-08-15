@@ -1,4 +1,5 @@
-let rng: @random.Rand = @random.Rand::new()
+///|
+let rng : @random.Rand = @random.Rand::new()
 
 ///|
 pub fn degrees_to_radians(degrees : Double) -> Double {
@@ -16,12 +17,12 @@ pub fn random_double_in_range(min : Double, max : Double) -> Double {
 }
 
 ///|
-pub fn clamp(x: Double, min: Double, max: Double) -> Double {
-    if (x < min) {
-        min
-    } else if (x > max) {
-        max
-    } else {
-        x
-    }
+pub fn clamp(x : Double, min : Double, max : Double) -> Double {
+  if x < min {
+    min
+  } else if x > max {
+    max
+  } else {
+    x
+  }
 }

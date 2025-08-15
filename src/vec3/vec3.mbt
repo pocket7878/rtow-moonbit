@@ -39,6 +39,15 @@ pub fn Vec3::new(e0 : Double, e1 : Double, e2 : Double) -> Vec3 {
 }
 
 ///|
+pub fn Vec3::random(min : Double, max : Double) -> Vec3 {
+  return Vec3::new(
+    @utils.random_double_in_range(min, max),
+    @utils.random_double_in_range(min, max),
+    @utils.random_double_in_range(min, max),
+  )
+}
+
+///|
 pub impl Show for Vec3 with output(self : Vec3, l : &Logger) {
   l.write_string("\{self.e[0]} \{self.e[1]} \{self.e[2]}")
 }
@@ -100,13 +109,36 @@ pub fn Vec3::cross(self : Vec3, other : Vec3) -> Vec3 {
 }
 
 ///|
-pub fn Vec3::unit_vector(self : Vec3) -> Vec3 {
-  self.div_scalar(self.length())
+pub fn unit_vector(v : Vec3) -> Vec3 {
+  v.div_scalar(v.length())
 }
 
 ///|
 pub fn op_get(self : Vec3, key : Int) -> Double {
   return self.e[key]
+}
+
+///|
+pub fn random_unit_vector() -> Vec3 {
+  let a = @utils.random_double_in_range(0, 2 * @math.PI)
+  let z = @utils.random_double_in_range(-1, 1)
+  let r = (1.0 - z * z).sqrt()
+  return Vec3::new(r * @math.cos(a), r * @math.sin(a), z)
+}
+
+///|
+pub fn random_vec3_in_unit_sphare() -> Vec3 {
+  let mut p = Vec3::random(-1, 1)
+  while p.length_squared() >= 1 {
+    p = Vec3::random(-1, 1)
+  } else {
+    return p
+  }
+}
+
+///|
+pub fn reflect(v : Vec3, n : Vec3) -> Vec3 {
+  v - n.mul_scalar(2 * dot(v, n))
 }
 
 ///|

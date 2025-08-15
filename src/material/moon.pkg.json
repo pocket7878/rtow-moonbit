@@ -1,0 +1,7 @@
+{
+    "import": [
+        "pocket7878/rtow-moonbit/vec3",
+        "pocket7878/rtow-moonbit/ray",
+        "pocket7878/rtow-moonbit/color",
+    ]
+}

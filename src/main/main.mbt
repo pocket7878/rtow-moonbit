@@ -1,13 +1,24 @@
 ///|
-fn ray_color(r : @lib.Ray, world : @lib.HittableList) -> @lib.Color {
-  match world.hit(r, 0, @double.infinity) {
+fn ray_color(
+  r : @ray.Ray,
+  world : @hittable.HittableList,
+  depth : Int,
+) -> @color.Color {
+  if depth <= 0 {
+    return @color.Color::new(0, 0, 0)
+  }
+  match world.hit(r, 0.001, @double.infinity) {
     Some(rec) =>
-      return (rec.normal() + @lib.Color::new(1, 1, 1)).mul_scalar(0.5)
+      match rec.mat.scatter(r, rec.normal, rec.p) {
+        Some((attenuation, scattered)) =>
+          return attenuation * ray_color(scattered, world, depth - 1)
+        None => return @color.Color::new(0, 0, 0)
+      }
     None => {
-      let unit_direction : @lib.Vec3 = r.direction().unit_vector()
+      let unit_direction : @vec3.Vec3 = @vec3.unit_vector(r.direction())
       let t = 0.5 * (unit_direction.y() + 1.0)
-      return @lib.Color::new(1.0, 1.0, 1.0).mul_scalar(1.0 - t) +
-        @lib.Color::new(0.5, 0.7, 1.0).mul_scalar(t)
+      return @color.Color::new(1.0, 1.0, 1.0).mul_scalar(1.0 - t) +
+        @color.Color::new(0.5, 0.7, 1.0).mul_scalar(t)
     }
   }
 }
@@ -18,23 +29,50 @@ fn main {
   let image_width : Int = 384
   let image_height : Int = (image_width.to_double() / aspect_ratio).to_int()
   let samples_per_pixel : Int = 100
+  let max_depth = 50
   println("P3\n\{image_width} \{image_height}\n255")
-  let world = @lib.HittableList::new()
-  world.add(@lib.Sphere::new(@lib.Point3::new(0, 0, -1), 0.5))
-  world.add(@lib.Sphere::new(@lib.Point3::new(0, -100.5, -1), 100))
-  let cam = @lib.Camera::new()
+  let world = @hittable.HittableList::new()
+  world.add(
+    @sphere.Sphere::new(
+      @vec3.Point3::new(0, 0, -1),
+      0.5,
+      @material.Lambertian::new(@color.Color::new(0.7, 0.3, 0.3)),
+    ),
+  )
+  world.add(
+    @sphere.Sphere::new(
+      @vec3.Point3::new(0, -100.5, -1),
+      100,
+      @material.Lambertian::new(@color.Color::new(0.8, 0.8, 0.0)),
+    ),
+  )
+  world.add(
+    @sphere.Sphere::new(
+      @vec3.Point3::new(1, 0, -1),
+      0.5,
+      @material.Metal::new(@color.Color::new(0.8, 0.6, 0.2), 1.0),
+    ),
+  )
+  world.add(
+    @sphere.Sphere::new(
+      @vec3.Point3::new(-1, 0, -1),
+      0.5,
+      @material.Metal::new(@color.Color::new(0.8, 0.8, 0.8), 0.3),
+    ),
+  )
+  let cam = @camera.Camera::new()
   for j = image_height - 1; j >= 0; j = j - 1 {
     for i = 0; i < image_width; i = i + 1 {
-      let mut pixel_color : @lib.Color = @lib.Color::new(0, 0, 0)
+      let mut pixel_color : @color.Color = @color.Color::new(0, 0, 0)
       for s = 0; s < samples_per_pixel; s = s + 1 {
-        let u = (i.to_double() + @lib.random_double()) /
+        let u = (i.to_double() + @utils.random_double()) /
           (image_width - 1).to_double()
-        let v = (j.to_double() + @lib.random_double()) /
+        let v = (j.to_double() + @utils.random_double()) /
           (image_height - 1).to_double()
         let r = cam.get_ray(u, v)
-        pixel_color += ray_color(r, world)
+        pixel_color += ray_color(r, world, max_depth)
       }
-      @lib.write_color(pixel_color, samples_per_pixel)
+      @color.write_color(pixel_color, samples_per_pixel)
     }
   }
 }

@@ -9,5 +9,10 @@
     "pocket7878/rtow-moonbit/sphere",
     "pocket7878/rtow-moonbit/material",
     "pocket7878/rtow-moonbit/camera"
-  ]
+  ],
+  "link": {
+      "wasm-gc": {
+          "exports": ["render_to_canvas"]
+      }
+  }
 }

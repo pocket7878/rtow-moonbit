@@ -1,6 +1,6 @@
 build:
 	moon build
 run:
-	moon run ./src/main > ./image.ppm
+	moon run --target native ./src/main > ./image.ppm
 view:
 	open ./image.ppm

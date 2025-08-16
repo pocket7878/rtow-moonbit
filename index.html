@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Ray Tracing in One Weekend</title>
+        <script type="module">
+            const canvas = document.getElementById("cv");
+            const ctx = canvas.getContext("2d");
+            const txt = document.getElementById("txt");
+            const w = canvas.width, h = canvas.height;
+
+            const worker = new Worker("./worker.js", { type: "module" });
+            worker.onmessage = (e) => {
+                const { type } = e.data;
+                if (type === "row") {
+                    const { y, buffer, width } = e.data;
+                    const row = new Uint8ClampedArray(buffer);
+                    const img = new ImageData(row, width, 1);
+                    ctx.putImageData(img, 0, y);
+                } else if (type === "prog") {
+                    const { y, height } = e.data;
+                    const pct = ((y+1)/height)*100;
+                    txt.textContent = `${pct.toFixed(1)}%`;
+                } else if (type === "done") {
+                    txt.textContent = "完了";
+                    worker.terminat();
+                }
+            }
+
+            worker.postMessage({ width: w, height: h, wasmPath: "./target/wasm-gc/release/build/main/main.wasm"});
+        </script>
+        <style>
+            #cv {
+                border: 1px solid #000;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Ray Tracing in One Weekend in MoonBit</h1>
+        <canvas id="cv" width="384" height="216"></canvas>
+        <div>
+            <div id="txt">Loading..</div>
+        </div>
+    </body>
+</html>

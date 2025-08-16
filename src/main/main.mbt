@@ -85,13 +85,10 @@ fn random_scene() -> @hittable.HittableList {
 }
 
 ///|
-fn main {
-  let aspect_ratio : Double = 16.0 / 9.0
-  let image_width : Int = 1200
-  let image_height : Int = (image_width.to_double() / aspect_ratio).to_int()
+pub fn render(image_width : Int, image_height : Int) -> Unit {
+  let aspect_ratio : Double = image_width.to_double() / image_height.to_double()
   let samples_per_pixel : Int = 100
   let max_depth = 50
-  println("P3\n\{image_width} \{image_height}\n255")
   let world = random_scene()
   let lookfrom = @vec3.Point3::new(13, 2, 3)
   let lookat = @vec3.Point3::new(0, 0, 0)
@@ -101,6 +98,8 @@ fn main {
   let cam = @camera.Camera::new(
     lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus,
   )
+  let host : Host = Host::new()
+  host.begin(image_width, image_height)
   for j = image_height - 1; j >= 0; j = j - 1 {
     for i = 0; i < image_width; i = i + 1 {
       let mut pixel_color : @color.Color = @color.Color::new(0, 0, 0)
@@ -112,7 +111,15 @@ fn main {
         let r = cam.get_ray(u, v)
         pixel_color += ray_color(r, world, max_depth)
       }
-      @color.write_color(pixel_color, samples_per_pixel)
+      host.pixel(i, j, pixel_color, samples_per_pixel)
     }
   }
+}
+
+///|
+fn main {
+  let aspect_ratio : Double = 16.0 / 9.0
+  let image_width : Int = 384
+  let image_height : Int = (image_width.to_double() / aspect_ratio).to_int()
+  render(image_width, image_height)
 }

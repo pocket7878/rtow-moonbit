@@ -8,27 +8,25 @@
 
 ## 使用方法
 
-### ビルド
+### nativeターゲット（ローカル実行）
 
 ```bash
-make build
+moon run --target native > image.ppm
 ```
 
-### レンダリング実行
+### wasm-gcターゲット（ブラウザ描画）
 
 ```bash
-make run
+moon build --target wasm-gc
+python -m http.server 8000
 ```
 
-### 画像表示
-
-```bash
-make view
-```
+ブラウザで http://localhost:8000 にアクセスしてindex.htmlを開くと、ブラウザ上でレンダリング結果を確認できます。
 
 ## 出力例
 
-![レンダリング結果](image.ppm.jpg)
+![レンダリング結果](./docs/image.ppm.jpg)
+![ブラウザでの描画](./docs/wasm_screenshot.jpg)
 
 ## ライセンス
 

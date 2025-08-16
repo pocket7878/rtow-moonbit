@@ -26,7 +26,7 @@ python -m http.server 8000
 ## 出力例
 
 ![レンダリング結果](./docs/image.ppm.jpg)
-![ブラウザでの描画](./docs/wasm_screenshot.jpg)
+![ブラウザでの描画](./docs/wasm_screenshot.png)
 
 ## ライセンス
 
